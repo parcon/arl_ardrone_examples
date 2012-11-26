@@ -1,6 +1,6 @@
 <h1>ROS ARdrone Examples</h1>
 <p>Parker Conroy</p>
-<p>[ARLab](arl.cs.utah.edu) @ University of Utah</p>
+<p>[ARLab](http://arl.cs.utah.edu) @ University of Utah</p>
 
 
 -------------------------
