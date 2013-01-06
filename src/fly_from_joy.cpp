@@ -1,10 +1,10 @@
 /*
 Parker Conroy
-ARLab
+Algorithmic Robotics Lab @ University of Utah
+
 
 This code actuates the ARdrone from a generic joystick message. It is open loop.
-
-
+It is intended as a simple example for those starting with the AR Drone platform.
 */
 #include <ros/ros.h>
 #include <std_msgs/Empty.h>
@@ -65,18 +65,18 @@ int main(int argc, char** argv)
  	while (ros::ok()) {
 //pub_empty.publish(emp_msg); //launches the drone
 
-joy_x=map(joy_x_,-100,100,-1,1);
-joy_y=map(joy_y_,-100,100,-1,1);
-joy_z=map(joy_z_,-100,100,-1,1);
+joy_x=map(joy_x_,-1024,1024,-1,1);
+joy_y=map(joy_y_,-1024,1024,-1,1);
+joy_z=map(joy_z_,-1024,1024,-1,1);
 
 
-if (fabs(joy_x)<0.1) {joy_x =0;}
+if (fabs(joy_x)<0.01) {joy_x =0;}
 else {joy_x=joy_x*forget+joy_x_old*(1-forget);}
 
-if (fabs(joy_y)<0.1) {joy_y =0;}
+if (fabs(joy_y)<0.01) {joy_y =0;}
 else {joy_y=joy_y*forget+joy_y_old*(1-forget);}
 
-if (fabs(joy_z)<0.1) {joy_z =0;}
+if (fabs(joy_z)<0.01) {joy_z =0;}
 else {joy_z=joy_z*forget+joy_z_old*(1-forget);}
 
 

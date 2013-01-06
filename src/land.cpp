@@ -1,9 +1,11 @@
 /*
 Parker Conroy
-ARLab
+Algorithmic Robotics Lab @ University of Utah
 
-This program lands the ardrone.
+This program lands the ardrone. 
+It is intended as a simple example for those starting with the AR Drone platform.
 */
+
 #include <ros/ros.h>
 #include <std_msgs/Empty.h>
 
