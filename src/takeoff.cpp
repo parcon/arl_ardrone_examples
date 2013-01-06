@@ -1,9 +1,9 @@
 /*
 Parker Conroy
-ARLab @ University of Utah
+Algorithmic Robotics Lab @ University of Utah
 
-This program launches the AR Drone. It is intended as a simple example for those starting 
-with the AR Drone platform.
+This program launches the AR Drone. 
+It is intended as a simple example for those starting with the AR Drone platform.
 */
 #include <ros/ros.h>
 #include <std_msgs/Empty.h>
