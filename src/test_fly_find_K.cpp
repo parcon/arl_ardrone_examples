@@ -13,9 +13,9 @@ ARLab
 	geometry_msgs::Twist twist_msg_neg;
 	geometry_msgs::Twist twist_msg_pshover;
 	std_msgs::Empty emp_msg;
-	float vx_;
-	float vy_;
-	float vz_;
+	float vx_=0.0;
+	float vy_=0.0;
+	float vz_=0.0;
 	float takeoff_time=5.0;
 	float fly_time=7.0;
 	float land_time=3.0;
