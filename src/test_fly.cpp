@@ -72,7 +72,7 @@ while (ros::ok()) {
 		if (	 (double)ros::Time::now().toSec()< time+5.0){
 		
 			pub_empty_takeoff.publish(emp_msg); //launches the drone
-				pub_twist.publish(twist_msg_hover); //drone is flat
+			pub_twist.publish(twist_msg_hover); //drone is flat
 			ROS_INFO("Taking off");
 			}//takeoff before t+5
 
@@ -93,7 +93,8 @@ while (ros::ok()) {
 		
 		else
 			{	
-			pub_twist.publish(twist_msg_pshover);
+			//pub_twist.publish(twist_msg_pshover);
+			pub_twist.publish(twist_msg_hover);
 			ROS_INFO("Flying");
 			}//fly according to desired twist
 
