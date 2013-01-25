@@ -12,32 +12,35 @@ ARLab
 	geometry_msgs::Twist twist_msg_hover;
 	geometry_msgs::Twist twist_msg_neg;
 	geometry_msgs::Twist twist_msg_pshover;
+	geometry_msgs::Twist twist_msg_up;
 	std_msgs::Empty emp_msg;
-	float vx_=0.0;
-	float vy_=0.0;
-	float vz_=0.0;
-	float takeoff_time=5.0;
-	float fly_time=7.0;
+	double vx_=0.0;
+	double vy_=0.0;
+	double vz_=0.0;
+	float takeoff_time=8.0;
+	float fly_time=3.0;
 	float land_time=3.0;
-	float kill_time =2.0;	
+	float kill_time =4.0;	
 			
 void nav_callback(const ardrone_autonomy::Navdata& msg_in)
 {
 	//Take in state of ardrone	
-	vx_=msg_in.vx;
-	vy_=msg_in.vy;	
-	vz_=msg_in.vz;		
+	vx_=msg_in.vx*0.001;
+	vy_=msg_in.vy*0.001;	
+	vz_=msg_in.vz*0.001;	
+	//ROS_INFO("getting sensor reading");	
 }
 
-geometry_msgs::Twist test_controller(float vx_des,float vy_des,float vz_des,float K)
+geometry_msgs::Twist test_controller(double vx_des,double vy_des,double vz_des,double K)
 {
 		geometry_msgs::Twist twist_msg_gen;
 	
-		twist_msg_gen.linear.x=K*(vx_des-vx_); 
+		twist_msg_gen.linear.x=K*(vx_des-vx_); //{-1 to 1}=K*( m/s - m/s)
+		//ROS_INFO("vx des- vx sensor &f",vx_des-vx_);
 		twist_msg_gen.linear.y=K*(vy_des-vy_); 
 		twist_msg_gen.linear.z=K*(vz_des-vz_);
-		twist_msg_gen.angular.x=0.0; 
-		twist_msg_gen.angular.y=0.0;
+		twist_msg_gen.angular.x=1.0; 
+		twist_msg_gen.angular.y=1.0;
 		twist_msg_gen.angular.z=0.0;
 		return twist_msg_gen;
 }
@@ -54,6 +57,7 @@ int main(int argc, char** argv)
 	ros::Publisher pub_twist;
 	ros::Publisher pub_empty_takeoff;
 	ros::Publisher pub_empty_reset;
+	ros::Subscriber nav_sub;
 	double start_time;
 
 //hover message
@@ -63,19 +67,14 @@ int main(int argc, char** argv)
 			twist_msg_hover.angular.x=0.0; 
 			twist_msg_hover.angular.y=0.0;
 			twist_msg_hover.angular.z=0.0;  
-
-//psudo-hover message
-			twist_msg_pshover.linear.x=0.0; 
-			twist_msg_pshover.linear.y=0.0;
-			twist_msg_pshover.linear.z=0.0;
-			twist_msg_pshover.angular.x=1.0; 
-			twist_msg_pshover.angular.y=1.0; //set to disable hover mode
-			twist_msg_pshover.angular.z=0.0; 
-
-
-				
-
-			//command message
+//fly up
+			twist_msg_up.linear.x=0.0; 
+			twist_msg_up.linear.y=0.0;
+			twist_msg_up.linear.z=0.5;
+			twist_msg_up.angular.x=0.0; 
+			twist_msg_up.angular.y=0.0;
+			twist_msg_up.angular.z=0.0;			
+//command message
 			twist_msg.linear.x=0.0; 
 			twist_msg.linear.y=0.0;
 			twist_msg.linear.z=0.0;
@@ -84,18 +83,19 @@ int main(int argc, char** argv)
 			twist_msg.angular.z=0.0;
 
 
-	
-    pub_twist = node.advertise<geometry_msgs::Twist>("/cmd_vel", 1); /* Message queue length is just 1 */
+	nav_sub = node.subscribe("/ardrone/navdata", 1, nav_callback);	
+  	pub_twist = node.advertise<geometry_msgs::Twist>("/cmd_vel", 1); /* Message queue length is just 1 */
 	pub_empty_takeoff = node.advertise<std_msgs::Empty>("/ardrone/takeoff", 1); /* Message queue length is just 1 */
 	pub_empty_land = node.advertise<std_msgs::Empty>("/ardrone/land", 1); /* Message queue length is just 1 */
-pub_empty_reset = node.advertise<std_msgs::Empty>("/ardrone/reset", 1); /* Message queue length is just 1 */
+	pub_empty_reset = node.advertise<std_msgs::Empty>("/ardrone/reset", 1); /* Message queue length is just 1 */
 
 	
 	start_time =(double)ros::Time::now().toSec();	
 	ROS_INFO("Starting ARdrone_test loop");
 
-	float desired_vx=0.5;
-	float K = 1.0;
+	double desired_vx=0.75; // [m/s]
+	//double desired_vx=0.0; // [m/s]
+	double K = .75; // []
 
 while (ros::ok()) {
 		while ((double)ros::Time::now().toSec()< start_time+takeoff_time){ //takeoff
@@ -110,12 +110,12 @@ while (ros::ok()) {
 		while  ((double)ros::Time::now().toSec()> start_time+takeoff_time+fly_time){
 		
 			pub_twist.publish(twist_msg_hover); //drone is flat
-			pub_empty_land.publish(emp_msg); //lands the drone
+		
 			ROS_INFO("Landing");
 			
 					
 			if ((double)ros::Time::now().toSec()> takeoff_time+start_time+fly_time+land_time+kill_time){
-		
+			pub_empty_land.publish(emp_msg); //lands the drone
 				ROS_INFO("Closing Node");
 				//pub_empty_reset.publish(emp_msg); //kills the drone		
 				exit(0); 	}//kill node
@@ -123,32 +123,26 @@ while (ros::ok()) {
 			loop_rate.sleep();			
 }//while land
 
-		while ( (double)ros::Time::now().toSec()> start_time+takeoff_time && 						(double)ros::Time::now().toSec()< start_time+takeoff_time+fly_time){	
+		while ( (double)ros::Time::now().toSec()> start_time+takeoff_time && (double)ros::Time::now().toSec()< start_time+takeoff_time+fly_time){	
 		
-			twist_msg=test_controller(desired_vx,0,0,K);
+			twist_msg=test_controller(desired_vx,0.0,0.0,K);
 
-			if((double)ros::Time::now().toSec()< start_time+takeoff_time+fly_time/2){
+			if((double)ros::Time::now().toSec()< start_time+takeoff_time+fly_time){
 			pub_twist.publish(twist_msg);
 			ROS_INFO("Flying +ve");
 
 			}//fly according to desired twist
 			
-			if((double)ros::Time::now().toSec()> start_time+takeoff_time+fly_time/2){
-
-			twist_msg_neg.linear.x=-twist_msg.linear.x; 
-			twist_msg_neg.linear.y=-twist_msg.linear.y;
-			twist_msg_neg.linear.z=-twist_msg.linear.z;
-			twist_msg_neg.angular.x=-twist_msg.angular.x; 
-			twist_msg_neg.angular.y=-twist_msg.angular.y;
-			twist_msg_neg.angular.z=-twist_msg.angular.z;
+			if((double)ros::Time::now().toSec()> start_time+takeoff_time+fly_time){
 			
-			pub_twist.publish(twist_msg_neg);
+			desired_vx=-desired_vx;
+			pub_twist.publish(twist_msg);
 			ROS_INFO("Flying -ve");
 
 			}//fly according to desired twist
 			
 			ros::spinOnce();
-		loop_rate.sleep();
+			loop_rate.sleep();
 			}
 
 	ros::spinOnce();
