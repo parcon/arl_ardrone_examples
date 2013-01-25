@@ -94,8 +94,8 @@ pub_empty_reset = node.advertise<std_msgs::Empty>("/ardrone/reset", 1); /* Messa
 	start_time =(double)ros::Time::now().toSec();	
 	ROS_INFO("Starting ARdrone_test loop");
 
-float desired_x=0.5;
-float K = 1.0;
+	float desired_vx=0.5;
+	float K = 1.0;
 
 while (ros::ok()) {
 		while ((double)ros::Time::now().toSec()< start_time+takeoff_time){ //takeoff
@@ -125,7 +125,7 @@ while (ros::ok()) {
 
 		while ( (double)ros::Time::now().toSec()> start_time+takeoff_time && 						(double)ros::Time::now().toSec()< start_time+takeoff_time+fly_time){	
 		
-twist_msg=test_controller(desired_x,0,0,K);
+			twist_msg=test_controller(desired_vx,0,0,K);
 
 			if((double)ros::Time::now().toSec()< start_time+takeoff_time+fly_time/2){
 			pub_twist.publish(twist_msg);
