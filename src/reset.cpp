@@ -10,9 +10,9 @@ It is intended as a simple example for those starting with the AR Drone platform
 #include <cstdlib>
 #include <ardrone_autonomy/Navdata.h>
 
-	std_msgs::Empty emp_msg;
-    ardrone_autonomy::Navdata msg_in;
-	int drone_state;
+std_msgs::Empty emp_msg;
+ardrone_autonomy::Navdata msg_in;
+int drone_state;
 
 void nav_callback(const ardrone_autonomy::Navdata& msg_in)
 {
@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 	pub_empty = node.advertise<std_msgs::Empty>("/ardrone/reset", 1); /* Message queue length is just 1 */
 	
  	while (ros::ok()) {
-		 double time_start=(double)ros::Time::now().toSec();
+		double time_start=(double)ros::Time::now().toSec();
 				
 		while ((double)ros::Time::now().toSec()< time_start+1.0 || drone_state == 0)
 				{				
@@ -42,14 +42,15 @@ int main(int argc, char** argv)
 				ROS_INFO("Sending Reset Signal");
 				ros::spinOnce();
 				loop_rate.sleep();
-				if((double)ros::Time::now().toSec()> time_start+3.0){ 					
-					ROS_INFO("Time limit reached, unable to set state of ardrone");
-					exit(0);
-					ROS_ERROR("Time limit reached, unable to set state of ardrone");}//end if
+					if((double)ros::Time::now().toSec()> time_start+3.0){ 					
+					
+						ROS_ERROR("Time limit reached, unable to set state of ardrone");
+						exit(0);
+					}//end if
+				
 				}//while time or state
 		system("rosservice  call /ardrone/setledanimation 1 5 2");
 		ROS_INFO("ARdrone reset");
 		exit(0);
-			}//ros::ok
-
+		}//ros::ok
 }//main

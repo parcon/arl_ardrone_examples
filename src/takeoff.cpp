@@ -18,20 +18,6 @@ int main(int argc, char** argv)
     ros::Rate loop_rate(50);
 	ros::Publisher pub_empty;
 	pub_empty = node.advertise<std_msgs::Empty>("/ardrone/takeoff", 1); /* Message queue length is just 1 */
-<<<<<<< HEAD
-	
- 	while (ros::ok()) {
-			 double time_start=(double)ros::Time::now().toSec();
-			while ((double)ros::Time::now().toSec()< time_start+5.0)
-			{
-				pub_empty.publish(emp_msg); //launches the drone
-				ros::spinOnce();
-				loop_rate.sleep();
-			}
-			ROS_INFO("ARdrone launched");
-			exit(0);
-			}//ros::ok
-=======
 
  	while (ros::ok()) 
  				{
@@ -45,6 +31,5 @@ int main(int argc, char** argv)
 				ROS_INFO("ARdrone launched");
 				exit(0);
 				}//ros::ok loop
->>>>>>> ee9d83b1a97a36ad1ea71c10af46e39537b6acd9
 
 }//main

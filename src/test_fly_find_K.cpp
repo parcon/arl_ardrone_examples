@@ -84,11 +84,10 @@ int main(int argc, char** argv)
 
 
 	nav_sub = node.subscribe("/ardrone/navdata", 1, nav_callback);	
-  	pub_twist = node.advertise<geometry_msgs::Twist>("/cmd_vel", 1); /* Message queue length is just 1 */
-	pub_empty_takeoff = node.advertise<std_msgs::Empty>("/ardrone/takeoff", 1); /* Message queue length is just 1 */
-	pub_empty_land = node.advertise<std_msgs::Empty>("/ardrone/land", 1); /* Message queue length is just 1 */
-	pub_empty_reset = node.advertise<std_msgs::Empty>("/ardrone/reset", 1); /* Message queue length is just 1 */
-
+  	pub_twist = node.advertise<geometry_msgs::Twist>("/cmd_vel", 1); 
+	pub_empty_takeoff = node.advertise<std_msgs::Empty>("/ardrone/takeoff", 1); 
+	pub_empty_land = node.advertise<std_msgs::Empty>("/ardrone/land", 1); 
+	pub_empty_reset = node.advertise<std_msgs::Empty>("/ardrone/reset", 1);
 	
 	start_time =(double)ros::Time::now().toSec();	
 	ROS_INFO("Starting ARdrone_test loop");
@@ -117,7 +116,6 @@ while (ros::ok()) {
 			if ((double)ros::Time::now().toSec()> takeoff_time+start_time+fly_time+land_time+kill_time){
 			pub_empty_land.publish(emp_msg); //lands the drone
 				ROS_INFO("Closing Node");
-				//pub_empty_reset.publish(emp_msg); //kills the drone		
 				exit(0); 	}//kill node
 			ros::spinOnce();
 			loop_rate.sleep();			
