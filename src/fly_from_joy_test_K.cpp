@@ -14,13 +14,19 @@ It is intended as a simple example for those starting with the AR Drone platform
 #include <ardrone_autonomy/Navdata.h>
 	
 double max_speed = 0.5; //[m/s]
-double K= 0.75;
+double Kp= 0.75;
+double Kd= 0.75;
 
 double joy_x_,joy_y_,joy_z_;
 int joy_a_,joy_b_,joy_xbox_;
 double joy_x,joy_y,joy_z;
 int joy_a,joy_b,joy_xbox;
+
 double drone_vx_, drone_vy_ , drone_vz_;
+double drone_ax_, drone_ay_ , drone_az_;
+double drone_vx, drone_vy , drone_vz;
+double drone_ax, drone_ay , drone_az;
+
 double cmd_x,cmd_y,cmd_z;
 int new_msg=0;
 int drone_state =0; 
@@ -53,17 +59,22 @@ void nav_callback(const ardrone_autonomy::Navdata& msg_in)
 	drone_vx_=msg_in.vx*0.001; //[mm/s] to [m/s]
 	drone_vy_=msg_in.vy*0.001;	
 	drone_vz_=msg_in.vz*0.001;
+	
+	drone_ax_=msg_in.ax*9.8; //[g] to [m/s2]
+	drone_ay_=msg_in.ay*9.8;	
+	drone_az_=msg_in.az*9.8;
+	
 	drone_state=msg_in.state;	
 	//ROS_INFO("getting sensor reading");	
 }
 
-void test_controller(double vx_des,double vy_des,double vz_des,double K)
+void test_controller(double vx_des,double vy_des,double vz_des,double Kp, double Kd)
 {
 		geometry_msgs::Twist twist_msg_gen;
 	
-		cmd_x=K*(vx_des-drone_vx_); //{-1 to 1}=K*( m/s - m/s)
-		cmd_y=K*(vy_des-drone_vy_); 
-		cmd_z=K*(vz_des-drone_vz_);
+		cmd_x=Kp*(vx_des-drone_vx_); //-Kd *drone_vx_	; //{-1 to 1}=K*( m/s - m/s)
+		cmd_y=Kp*(vy_des-drone_vy_); 
+		cmd_z=Kp*(vz_des-drone_vz_);
 		twist_msg_gen.angular.x=1.0; 
 		twist_msg_gen.angular.y=1.0;
 		twist_msg_gen.angular.z=0.0;
@@ -88,6 +99,21 @@ double map(double value, double in_min, double in_max, double out_min, double ou
   return (double)((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
 }	
 
+void merge_new_mgs(void){
+		joy_x=joy_x_;
+		joy_y=joy_y_;
+		joy_z=joy_z_;
+		joy_a=joy_a_;
+		joy_b=joy_b_;
+		joy_xbox=joy_xbox_;
+		drone_vx=drone_vx_;
+		drone_vy=drone_vy_;
+		drone_vz=drone_vz_;
+		drone_ax=drone_ax_;
+		drone_ay=drone_ay_;
+		drone_az=drone_az_;
+	}
+
 int main(int argc, char** argv)
 {
 	ros::init(argc, argv,"ARDrone_fly_from_joy");
@@ -111,12 +137,7 @@ int main(int argc, char** argv)
 	
     ROS_INFO("Starting Test Node, /cmd_vel = f(joy,quad velocity)");
  	while (ros::ok()) {
-		joy_x=joy_x_;
-		joy_y=joy_y_;
-		joy_z=joy_z_;
-		joy_a=joy_a_;
-		joy_b=joy_b_;
-		joy_xbox=joy_xbox_;
+	merge_new_mgs();
 
 		//commands to change state of drone
 		if (joy_a){
@@ -162,7 +183,7 @@ int main(int argc, char** argv)
 		cmd_y= joy_y*max_speed;
 		cmd_z= joy_z*max_speed;
 	
-		test_controller(cmd_x,cmd_x,cmd_x,K); //modifies cmd_x,cmd_y,cmd_z proportinal to quad_speed
+		test_controller(cmd_x,cmd_x,cmd_x,Kp,Kd); //modifies cmd_x,cmd_y,cmd_z proportinal to quad_speed
 		
 		twist_msg.linear.x=cmd_x;
 		twist_msg.linear.y=cmd_y;	
