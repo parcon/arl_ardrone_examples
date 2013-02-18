@@ -14,6 +14,7 @@ It is intended as a simple example for those starting with the AR Drone platform
 	geometry_msgs::Twist twist_msg_neg;
 	geometry_msgs::Twist twist_msg_hover;
 	geometry_msgs::Twist twist_msg_up;
+	geometry_msgs::Twist twist_msg_fwd;
 	std_msgs::Empty emp_msg;
 	
 
@@ -31,6 +32,11 @@ int main(int argc, char** argv)
 	ros::Publisher pub_empty_reset;
 	double start_time;
 
+//command message
+			float takeoff_time=5.0;
+			float fly_time=7.0;
+			float land_time=3.0;
+			float kill_time =2.0;	
 //hover message
 			twist_msg_hover.linear.x=0.0; 
 			twist_msg_hover.linear.y=0.0;
@@ -45,20 +51,15 @@ int main(int argc, char** argv)
 			twist_msg_up.angular.x=0.0; 
 			twist_msg_up.angular.y=0.0;
 			twist_msg_up.angular.z=0.0;
-//command message
-			float takeoff_time=5.0;
-			float fly_time=7.0;
-			float land_time=3.0;
-			float kill_time =2.0;	
 			
-			
-			twist_msg.linear.x=0.0; 
-			twist_msg.linear.y=0.25;
-			twist_msg.linear.z=0.0;
-			twist_msg.angular.x=0.0; 
-			twist_msg.angular.y=0.0;
-			twist_msg.angular.z=0.0;
-
+//fwd message	
+			twist_msg_fwd.linear.x=0.0; 
+			twist_msg_fwd.linear.y=0.25;
+			twist_msg_fwd.linear.z=0.0;
+			twist_msg_fwd.angular.x=0.0; 
+			twist_msg_fwd.angular.y=0.0;
+			twist_msg_fwd.angular.z=0.0;
+//reverse fwd
 			twist_msg_neg.linear.x=-twist_msg.linear.x; 
 			twist_msg_neg.linear.y=-twist_msg.linear.y;
 			twist_msg_neg.linear.z=-twist_msg.linear.z;
@@ -68,7 +69,7 @@ int main(int argc, char** argv)
 
 
 	
-    pub_twist = node.advertise<geometry_msgs::Twist>("/cmd_vel", 1); /* Message queue length is just 1 */
+    pub_twist = node.advertise<geometry_msgs::Twist>("/joy_vel", 1); /* Message queue length is just 1 */
 	pub_empty_takeoff = node.advertise<std_msgs::Empty>("/ardrone/takeoff", 1); /* Message queue length is just 1 */
 	pub_empty_land = node.advertise<std_msgs::Empty>("/ardrone/land", 1); /* Message queue length is just 1 */
 pub_empty_reset = node.advertise<std_msgs::Empty>("/ardrone/reset", 1); /* Message queue length is just 1 */
@@ -104,23 +105,12 @@ while (ros::ok()) {
 			loop_rate.sleep();			
 }//while land
 
-		while ( (double)ros::Time::now().toSec()> start_time+takeoff_time && 						(double)ros::Time::now().toSec()< start_time+takeoff_time+fly_time){	
+		while ( (double)ros::Time::now().toSec()> start_time+takeoff_time && (double)ros::Time::now().toSec()< start_time+takeoff_time+fly_time){	
 		
-
-			if((double)ros::Time::now().toSec()< start_time+takeoff_time+fly_time/2){
 			pub_twist.publish(twist_msg);
 			ROS_INFO("Flying +ve");
-
-			}//fly according to desired twist
-			
-			if((double)ros::Time::now().toSec()> start_time+takeoff_time+fly_time/2){
-			pub_twist.publish(twist_msg_neg);
-			ROS_INFO("Flying -ve");
-
-			}//fly according to desired twist
-			
 			ros::spinOnce();
-		loop_rate.sleep();
+			loop_rate.sleep();
 			}
 
 	ros::spinOnce();
