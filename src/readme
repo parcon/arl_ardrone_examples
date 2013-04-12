@@ -12,4 +12,6 @@ rosrun takeoff
 
 To use the joystick flying node, one must install the ros joy package if it is not already on the system (http://www.ros.org/wiki/joy). Joystick nodes generally use a joy type message, which the fly_from_joy node expects. Please dig into the source code (.cpp files) to see how it is conducted further.
 
-This package was developed because I found myself (at the time a beginner to ROS) a little overwhelmed when beginning to use the AR.Drone in a linux enviroment. After talking to other users, I decided to formally release a package of the sample nodes I created for my laboratory. Explict use of these nodes isn't really expected, as they are more of a jumping off point for more functional code. Feel free to contact me through the github page with additions to the package or questions.
+This package was developed because I found myself (at the time a beginner to ROS) a little overwhelmed when beginning to use the AR.Drone in a linux environment. After talking to other users, I decided to formally release a package of the sample nodes I created for my laboratory. Explicit use of these nodes isn't really expected, as they are more of a jumping off point for more functional code. Feel free to contact me through the github page with additions to the package or questions.
+
+
