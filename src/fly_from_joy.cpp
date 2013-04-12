@@ -12,7 +12,6 @@ It is intended as a simple example for those starting with the AR Drone platform
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Vector3.h>
 
-	
 double joy_x_,joy_y_,joy_z_;
 double joy_x,joy_y,joy_z;
 int new_msg=0;
@@ -50,21 +49,27 @@ int main(int argc, char** argv)
 	ros::Publisher pub_v3;
 	ros::Subscriber joy_sub;
 
-    pub_twist = node.advertise<geometry_msgs::Twist>("/cmd_vel", 1); 
-    pub_v3 = node.advertise<geometry_msgs::Vector3>("/joy_vel", 1); 
-	joy_sub = node.subscribe("/joy", 1, joy_callback);
+    pub_twist = node.advertise<geometry_msgs::Twist>("cmd_vel", 1); //send robot input on /cmd_vel topic
+    pub_v3 = node.advertise<geometry_msgs::Vector3>("joy_vel", 1);  //send velocity for graphing on /joy_vel topic
+	joy_sub = node.subscribe("/joy", 1, joy_callback); //suscribe to the joystick message
 	
-    ROS_INFO("Starting Joy --> /cmd_vel Node");
- 	while (ros::ok()) {
+    
+    ROS_INFO("Waiting for joystick message");
+    while (!new_msg){ 
+    ros::spinOnce();
+	loop_rate.sleep();
+    }
+    
+    ROS_INFO("Starting Joy --> cmd_vel Node");
+ 	while (ros::ok() && new_msg) { //start the node when a messge comes in
 		//pub_empty.publish(emp_msg); //launches the drone
 
-		joy_x=map(joy_x_,-1024,1024,-1,1);
+		joy_x=map(joy_x_,-1024,1024,-1,1); //map the joy input (generally 10 bit to what the AR.Drone drivers expect)
 		joy_y=map(joy_y_,-1024,1024,-1,1);
 		joy_z=map(joy_z_,-1024,1024,-1,1);
 
-
 		if (fabs(joy_x)<0.01) {joy_x =0;}
-		//else {joy_x=joy_x*forget+joy_x_old*(1-forget);} //smoothing via forget
+		//else {joy_x=joy_x*forget+joy_x_old*(1-forget);} //This line can smoothing the input signal via the float forget. 
 
 		if (fabs(joy_y)<0.01) {joy_y =0;}
 		//else {joy_y=joy_y*forget+joy_y_old*(1-forget);}
@@ -76,16 +81,16 @@ int main(int argc, char** argv)
 
 		twist_msg.linear.x=joy_x;
 		twist_msg.linear.y=joy_y;	
-		twist_msg.linear.z=0.0;//THRUST AND YAW ARE DISABLED
-		twist_msg.angular.z=0.0;	
+		twist_msg.linear.z=joy_z;
+		twist_msg.angular.z=0.0; //YAW IS DISABLED
 
 		v3_msg.x=joy_x;
 		v3_msg.y=joy_y;
 		v3_msg.z=joy_z;
 
 		new_msg=0;
-		pub_v3.publish(v3_msg);
-		pub_twist.publish(twist_msg);
+		pub_v3.publish(v3_msg); //message is posted for easy graphing
+		pub_twist.publish(twist_msg); //send message to the robot
 
 		ros::spinOnce();
 		loop_rate.sleep();

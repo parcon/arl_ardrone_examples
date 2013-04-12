@@ -25,8 +25,5 @@
         <rosparam param="cov/imu_av">[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]</rosparam>
         <rosparam param="cov/imu_or">[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 100000.0]</rosparam>
 	</node>
-	
-	<node pkg="rviz" type="rviz" output="screen" name="Visualizer"/>
-	<node pkg="ros_vrpn_client" name="quad" type="ros_vrpn_client" args="_vrpn_server_ip:=visionsystem.cs.utah.edu" required="true" />
 	<node pkg="rxtools" type="rxplot" name="plot_battery" args="/ardrone/navdata/batteryPercent" />
 </launch>
