@@ -108,7 +108,7 @@ include_directories(
 ## Declare a cpp executable
  add_executable(led_dance src/control_leds.cpp)
  add_executable(ardrone_test src/test_fly.cpp)
- add_executable(ardrone_test_back_and_forth src/fly_back_and_forth.cpp)
+ add_executable(ardrone_test_back_and_forth src/fly_back_forth.cpp)
  add_executable(reset src/reset.cpp)
  add_executable(land src/land.cpp)
  add_executable(takeoff src/takeoff.cpp)
